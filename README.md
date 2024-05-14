@@ -1,2 +1,24 @@
 # 8CC00 groep 9
- Groepsopdracht 8CC00 drug discovery
+ Notities bij Groepsopdracht 8CC00 drug discovery
+
+## Wat te doen?
+1. Github repository
+2. Dataset preparation: 
+    * RDKit, hoe werkt het
+    * Dataset opbouwen van molecular discriptors
+3. EDA: welke discriptors zijn relevant voor het model?
+    * correlatie discriptor-inhibitie
+    * _outlier analysis_
+    * suggesties? (vul dan deze readme aan)
+4. Identification of structure-activity relationships
+    * decision trees
+    * regression
+    * clustering.
+5. Best approach: speed, accuracy
+    * Deep learning model
+    * regression
+    * decision tree
+    * clustering 
+6. prediction
+7. report
+8. presentation

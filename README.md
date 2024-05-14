@@ -15,7 +15,7 @@
     * regression
     * clustering.
 5. Best approach: speed, accuracy
-    * Deep learning model
+    * Deep learning model (for example with [keras](https://keras.io/getting_started/intro_to_keras_for_engineers/))
     * regression
     * decision tree
     * clustering 

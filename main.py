@@ -1,20 +1,20 @@
 import rdkit
 import pandas as pd
+# # Adding descriptors
+from rdkit.Chem import Descriptors
+from rdkit.Chem import PandasTools
 
 with open('tested_molecules.csv', 'r') as infile:
     df = pd.read_csv(infile)
 
-
-from rdkit.Chem import PandasTools
 # add molecule column to the dataframe
 PandasTools.AddMoleculeColumnToFrame(df, smilesCol='SMILES')
 
-desc_list = [n[0] for n in Descriptors._descList]
+# Add all descriptors to the dataframe
+for desc in Descriptors._descList:
+    desc_name = desc[0]
+    df[desc_name] = df['ROMol'].map(lambda x: desc[1](x))
 
-# # Adding descriptors
-from rdkit.Chem import Descriptors
-# add each descriptor to the dataframe
-for desc in desc_list:
-    df[desc] = df['ROMol'].map(lambda x: Descriptors.descList[desc][0](x))
+# Save the dataframe
+df.to_csv('tested_molecules_with_descriptors.csv', index=False)
 
-print(df.head())

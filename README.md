@@ -9,11 +9,13 @@
 3. EDA: welke discriptors zijn relevant voor het model?
     * correlatie discriptor-inhibitie
     * _outlier analysis_
+    * removing possible missing values
+    * test assumptions
     * suggesties? (vul dan deze readme aan)
 4. Identification of structure-activity relationships
     * decision trees
     * regression
-    * clustering.
+    * clustering. (e.g. by kMeans)
 5. Best approach: speed, accuracy
     * Deep learning model (for example with [keras](https://keras.io/getting_started/intro_to_keras_for_engineers/))
     * regression

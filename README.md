@@ -4,8 +4,8 @@
 ## Wat te doen?
 1. Github repository
 2. Dataset preparation: 
-    * RDKit, hoe werkt het
-    * Dataset opbouwen van molecular discriptors
+    * ~~RDKit, hoe werkt het~~ _Tim_
+    * ~~Dataset opbouwen van molecular discriptors~~ _Tim_
 3. EDA: welke discriptors zijn relevant voor het model?
     * correlatie discriptor-inhibitie
     * _outlier analysis_

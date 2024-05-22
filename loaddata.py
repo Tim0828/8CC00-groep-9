@@ -4,24 +4,32 @@ import pandas as pd
 from rdkit.Chem import Descriptors
 from rdkit.Chem import PandasTools
 
-
 def load_data(input_file):
     with open(input_file, 'r') as infile:
         df = pd.read_csv(infile)
 
-    # add molecule column to the dataframe
+    # Add molecule column to the dataframe
     PandasTools.AddMoleculeColumnToFrame(df, smilesCol='SMILES')
 
-    # Add all descriptors to the dataframe
-    for desc in Descriptors._descList:
-        desc_name = desc[0]
-        df[desc_name] = df['ROMol'].map(lambda x: desc[1](x))
+    # Prepare a dictionary to hold descriptor values
+    dict_Descriptors = {}
 
-    # drop ROmol for saving
+    # Add all descriptors to the dictionary
+    for Descriptor_name, Descriptor_func in Descriptors._descList:
+        dict_Descriptors[Descriptor_name] = df['ROMol'].map(lambda x: Descriptor_func(x))
+
+    # Create a DataFrame using the dict
+    descriptors_df = pd.DataFrame(dict_Descriptors)
+
+    #add all values to the df in one step
+    df = pd.concat([df, descriptors_df], axis=1)
+
+    # Drop ROMol column for saving
     df.drop('ROMol', axis=1, inplace=True)
-    # Save the dataframe
-    input_file = input_file.split('.')[0]
-    df.to_csv('{}_with_descriptors.csv'.format(input_file), index=False)
+
+    #Now save the df
+    output_file = '{}_with_descriptors.csv'.format(input_file.split('.')[0])
+    df.to_csv(output_file, index=False)
 
     return df
 

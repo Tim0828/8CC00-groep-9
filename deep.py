@@ -4,7 +4,7 @@ from keras import layers
 import matplotlib.pyplot as plt
 
 BATCH_SIZE = 64
-EPOCHS = 30
+EPOCHS = 300
 
 # training data 
 import pandas as pd
@@ -24,12 +24,13 @@ from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 print(x_train.shape, y_train.shape)
 
-from keras.layers import Dropout #, BatchNormalization, Embedding
+from keras.layers import Dropout, Normalization #, BatchNormalization, Embedding
 from keras.callbacks import EarlyStopping
 
 model = keras.Sequential(
     [
         keras.Input(shape=(210,)),
+        Normalization(),
         layers.Dense(256, activation="relu"),
         Dropout(0.2),
         layers.Dense(128, activation="relu"),
@@ -40,12 +41,12 @@ model = keras.Sequential(
 )
 
 model.compile(optimizer='adam', 
-              loss='categorical_crossentropy', 
+              loss='binary_crossentropy', 
               metrics=['accuracy'])
 
 # model.summary()
 # add early stopping (prevents overfitting)
-early_stopping = EarlyStopping(monitor='val_loss', patience=15)
+early_stopping = EarlyStopping(monitor='val_loss', patience=2)
 
 history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_split=0.2, callbacks=[early_stopping])
 

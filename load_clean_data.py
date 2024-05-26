@@ -5,9 +5,9 @@ from rdkit.Chem import Descriptors
 from rdkit.Chem import PandasTools
 
 def load_data(input_file):
-    with open(input_file, 'r') as infile:
-        df = pd.read_csv(infile)
-
+   
+    df = pd.read_csv(input_file)
+    
     # Add molecule column to the dataframe
     PandasTools.AddMoleculeColumnToFrame(df, smilesCol='SMILES')
 
@@ -24,6 +24,10 @@ def load_data(input_file):
     #add all values to the df in one step
     df = pd.concat([df, descriptors_df], axis=1)
 
+    # Drop duplicates based on SMILES
+    df = df.drop_duplicates(subset=['SMILES'])
+    # Drop rows missing smiles
+    df = df.dropna(subset=['SMILES'])
     # Drop ROMol column for saving
     df.drop('ROMol', axis=1, inplace=True)
 
@@ -34,4 +38,5 @@ def load_data(input_file):
     return df
 
 df = load_data('tested_molecules.csv')
-print(df.head())
+
+print(len(df))

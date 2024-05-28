@@ -2,47 +2,56 @@ import numpy as np
 import keras
 from keras import layers
 import matplotlib.pyplot as plt
+import pandas as pd
 
 BATCH_SIZE = 64
 EPOCHS = 300
 
-# training data 
-import pandas as pd
-with open("tested_molecules_with_descriptors.csv", 'r') as infile:
-        df = pd.read_csv(infile)
+def get_data(input_file):
+    from sklearn.model_selection import train_test_split
 
-dfx = df.iloc[:, 3:]
-dfy = df.iloc[:, 1:3]
+    # training data 
+    with open("clean_tested_molecules.csv", 'r') as infile:
+            df = pd.read_csv(infile)
 
-# Convert DataFrame to NumPy array
-x = dfx.values
-y = dfy.values
+    # split X and y
+    dfx = df.iloc[:, 3:]
+    dfy = df.iloc[:, 1:3]
 
-from sklearn.model_selection import train_test_split
+    # Convert DataFrame to NumPy array
+    x = dfx.values
+    y = dfy.values
 
-# Split the data into training and test sets    
-x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
-print(x_train.shape, y_train.shape)
+    # Split the data into training and test sets    
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.25, random_state=42)
+    return x_train, x_test, y_train, y_test
 
-from keras.layers import Dropout, Normalization #, BatchNormalization, Embedding
+x_train, x_test, y_train, y_test = get_data("clean_tested_molecules.csv")
+
+def get_model():
+    from keras.layers import Dropout, Normalization #, BatchNormalization, Embedding
+
+    model = keras.Sequential(
+        [
+            keras.Input(shape=(210,)),
+            Normalization(),
+            layers.Dense(256, activation="relu"),
+            Dropout(0.2),
+            layers.Dense(128, activation="relu"),
+            Dropout(0.1),
+            layers.Dense(64, activation="relu"),
+            layers.Dense(2, activation="softmax"),
+        ]
+    )
+
+    model.compile(optimizer='adam', 
+                  loss='binary_crossentropy', 
+                  metrics=['accuracy'])
+    return model
+
+model = get_model()
+
 from keras.callbacks import EarlyStopping
-
-model = keras.Sequential(
-    [
-        keras.Input(shape=(210,)),
-        Normalization(),
-        layers.Dense(256, activation="relu"),
-        Dropout(0.2),
-        layers.Dense(128, activation="relu"),
-        Dropout(0.1),
-        layers.Dense(64, activation="relu"),
-        layers.Dense(2, activation="softmax"),
-    ]
-)
-
-model.compile(optimizer='adam', 
-              loss='binary_crossentropy', 
-              metrics=['accuracy'])
 
 # model.summary()
 # add early stopping (prevents overfitting)

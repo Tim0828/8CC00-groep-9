@@ -31,12 +31,11 @@ def load_data(input_file):
     # Drop ROMol column for saving
     df.drop('ROMol', axis=1, inplace=True)
 
-    #Now save the df
-    output_file = '{}_with_descriptors.csv'.format(input_file.split('.')[0])
-    df.to_csv(output_file, index=False)
-
     return df
 
-df = load_data('tested_molecules.csv')
+input_file = 'tested_molecules.csv'
+df = load_data(input_file)
 
-print(len(df))
+#Now save the df
+output_file = 'clean_{}.csv'.format(input_file.split('.')[0])
+df.to_csv(output_file, index=False)

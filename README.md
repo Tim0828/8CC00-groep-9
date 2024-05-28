@@ -24,3 +24,24 @@
 6. prediction
 7. report
 8. presentation
+
++++ Notes Meeting 28-5 +++
+
+Data cleaning en loading is gelukt.
+PCA moet gebeuren voor verschillende onderdelen.
+EDA: Nog niet heel veel aan gebeurt.
+Clustering: 
+•	Eerst preprocessing (minmax)
+•	5 clusters op attributes.
+•	Moet nog gevisualiseerd te worden.
+.Regression:
+•	Nog niet echt bekend welke attributen relevant zijn.
+•	Er is nog geen code, maar wel een stappenplan van wat er moet gebeuren.
+Deep learning:
+•	Model getraind op de beschikbare data. (80% train, 20% test)
+•	Accuracy is 0.93.
+•	Je wilt dat je loss naar beneden gaat en op een gegeven moment ga je overfitten: dus hiervoor hebben we bijvoorbeeld early stopping toegevoegd.
+•	Het is vooral uitproberen hiermee.
+
+Taken:
+Iedereen PCA voor volgende meeting, want het is redelijk nieuw concept voor iedereen. Dan kunnen we het vergelijken welke het beste is. Daarna kan iedereen gewoon aan zn eigen stukje werken.

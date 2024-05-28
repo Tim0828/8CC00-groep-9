@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression 
 
 
-#willen we ook een plot van de test en train data
+#willen we ook een plot van de test en train data -> voor verschil met machine learning
 #from sklearn.preprocessing import PolynomialFeatures 
 
 #wachten tot EDA klaar is / wel code schrijven maar niet werkend nog
 #beginnen met scatterplot om te zien hoe data er precies uitziet
-#PCA (nog in te verdiepen in PCR)
+#PCA (nog in te verdiepen in PCR (PCA regression))
 #scale the data
 #bepalen hoeveel parameters we meenemen
 #zien welke parameters meest significant is

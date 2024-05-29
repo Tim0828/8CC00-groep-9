@@ -27,15 +27,15 @@ x = dfx.values
 y = dfy.values
 
 
-# Evaluate the model on the test data using `evaluate`
-print("Evaluate on test data")
-results = model.evaluate(x, y, batch_size=64)
-print("test loss, test acc:", results)
+# # Evaluate the model on the test data using `evaluate`
+# print("Evaluate on test data")
+# results = model.evaluate(x, y, batch_size=64)
+# print("test loss, test acc:", results)
 
-# Generate predictions (probabilities -- the output of the last layer)
-# on new data using `predict`
-print("Generate predictions for 3 samples")
-predictions = model.predict(x)
-print("predictions shape:", predictions.shape)
-df_predict = pd.DataFrame(predictions)
-df_predict.head()
+# # Generate predictions (probabilities -- the output of the last layer)
+# # on new data using `predict`
+# print("Generate predictions for 3 samples")
+# predictions = model.predict(x)
+# print("predictions shape:", predictions.shape)
+# df_predict = pd.DataFrame(predictions)
+# df_predict.head()

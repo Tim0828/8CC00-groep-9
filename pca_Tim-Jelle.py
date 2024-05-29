@@ -8,11 +8,12 @@ import matplotlib.pyplot as plt
 data = pd.read_csv('tested_molecules_with_descriptors.csv')
 
 # Separate the molecular descriptors from the inhibition labels and SMILES
-data= data.drop(columns=['PKM2_inhibition', 'ERK2_inhibition', 'SMILES'])
+data_clean= data.drop(columns=['PKM2_inhibition', 'ERK2_inhibition', 'SMILES'])
 
 # Standardize the features by scaling them to have mean 0 and variance 1
 scaler = StandardScaler()
-data_scaled = scaler.fit_transform(data)
+data_scaled = scaler.fit_transform(data_clean)
+
 
 # Perform PCA to reduce the dimensionality of the data
 pca = PCA(n_components=2)

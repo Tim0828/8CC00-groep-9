@@ -25,7 +25,7 @@ else:
     scalerminmax = MinMaxScaler()
     df_scaled = scalerminmax.fit_transform(df_untested_data)
     # Perform PCA
-    pca = PCA() #n_components=43
+    pca = PCA(n_components=43) 
     df_untested_mol_pca = pca.fit_transform(df_scaled)
 
     explained_variance_ratio = pca.explained_variance_ratio_
@@ -33,7 +33,7 @@ else:
     plt.plot(range(1, len(cumulative_explained_variance) + 1), cumulative_explained_variance)
     plt.show()
     # add the SMILES and inhibition labels back to the PCA data
-    # df_untested_mol_pca = pd.DataFrame(df_untested_mol_pca, columns=[f'PC{i+1}' for i in range(80)])
+    # df_untested_mol_pca = pd.DataFrame(df_untested_mol_pca, columns=[f'PC{i+1}' for i in range(43)])
     # df_untested_mol_pca = pd.concat([df_untested_mol_pca, df_descriptors], axis=1)
 
     # placeholder_value = -999  # Example placeholder value

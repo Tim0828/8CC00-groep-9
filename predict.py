@@ -33,7 +33,7 @@ else:
     df_untested_mol_pca = pd.DataFrame(df_untested_mol_pca, columns=[f'PC{i+1}' for i in range(43)])
     df_untested_mol_pca = pd.concat([df_untested_mol_pca, df_descriptors], axis=1)
 
-    placeholder_value = -999  # Example placeholder value
+    placeholder_value = 0  # Example placeholder value
     df_untested_mol_pca_filled = df_untested_mol_pca.fillna(placeholder_value)
     
 

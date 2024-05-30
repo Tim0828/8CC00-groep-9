@@ -33,5 +33,5 @@ def load_data(input_file):
 
     return df
 
-df = load_data('tested_molecules.csv')
+df = load_data('untested_molecules.csv')
 print(df.head())

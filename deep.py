@@ -17,7 +17,7 @@ def get_data(input_file, VAL_SPLIT):
 
     # split X and y 
     dfy = df[['PKM2_inhibition', 'ERK2_inhibition']]
-    df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
+    df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
     dfx = df
 
     # Convert DataFrame to NumPy array

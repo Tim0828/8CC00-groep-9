@@ -36,11 +36,11 @@ def get_model(input_size):
     model = keras.Sequential(
         [
             keras.Input(shape=(input_size,)),
-            layers.Dense(256, activation="relu"),
+            layers.Dense(256, activation="leaky_relu"),
             Dropout(0.2),
-            layers.Dense(128, activation="relu"),
+            layers.Dense(128, activation="leaky_relu"),
             Dropout(0.2),
-            layers.Dense(64, activation="relu"),
+            layers.Dense(64, activation="leaky_relu"),
             Dropout(0.2),
             layers.Dense(32, activation="relu"),
             Dropout(0.2),
@@ -67,7 +67,7 @@ def train_and_validate(model, VAL_SPLIT):
 
     # model.summary()
     # add early stopping (prevents overfitting)
-    early_stopping = EarlyStopping(monitor='val_loss', patience=10)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10, verbose=1, mode='auto')
 
     history = model.fit(x_train, y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_split=VAL_SPLIT, callbacks=[early_stopping])
 
@@ -96,4 +96,14 @@ def train_and_validate(model, VAL_SPLIT):
     return
 
 train_and_validate(model, VAL_SPLIT)
-model.save("my_modelPCA1.keras")
+
+# validate 
+y_pred = model.predict(x_test)
+y_pred_binary = np.where(y_pred > 0.5, 1, 0)
+# calculate accuracy
+from sklearn.metrics import accuracy_score
+accuracy = accuracy_score(y_test, y_pred_binary)
+print("Accuracy: %.2f%%" % (accuracy*100))
+
+# save the model
+model.save("my_modelPCA2.keras")

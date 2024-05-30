@@ -5,7 +5,7 @@ import keras
 from sklearn.model_selection import train_test_split
 import pandas as pd
 
-VAL_SPLIT = 0.25
+VAL_SPLIT = 0.02
 
 from sklearn.model_selection import train_test_split
 
@@ -23,8 +23,12 @@ dfx = df
 x = dfx.values
 y = dfy.values
 
+# get only the last ..% of the data
+x = x[-int(len(x)*VAL_SPLIT):]
+y = y[-int(len(y)*VAL_SPLIT):]
+
 # load the model
-model_name = 'my_modelPCA955.keras'
+model_name = 'my_modelPCA999.keras'
 model = keras.models.load_model(model_name)
 
 
@@ -35,10 +39,12 @@ print("Evaluate on test data")
 results = model.evaluate(x, y, batch_size=64)
 print("test loss, test acc:", results)
 
-# # Generate predictions (probabilities -- the output of the last layer)
-# # on new data using `predict`
-# print("Generate predictions for 3 samples")
-# predictions = model.predict(x)
-# print("predictions shape:", predictions.shape)
-# df_predict = pd.DataFrame(predictions)
-# df_predict.head()
+# Generate predictions
+predictions = model.predict(x)
+
+# Plot the results
+import matplotlib.pyplot as plt
+plt.scatter(y, predictions)
+plt.xlabel('True Values')
+plt.ylabel('Predictions')
+plt.show()

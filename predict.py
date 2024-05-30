@@ -4,7 +4,7 @@ from keras.models import load_model
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
 from load_clean_data import load_data
-import matplotlib.pyplot as plt
+
 
 
 
@@ -28,31 +28,28 @@ else:
     pca = PCA(n_components=43) 
     df_untested_mol_pca = pca.fit_transform(df_scaled)
 
-    explained_variance_ratio = pca.explained_variance_ratio_
-    cumulative_explained_variance = explained_variance_ratio.cumsum()
-    plt.plot(range(1, len(cumulative_explained_variance) + 1), cumulative_explained_variance)
-    plt.show()
-    # add the SMILES and inhibition labels back to the PCA data
-    # df_untested_mol_pca = pd.DataFrame(df_untested_mol_pca, columns=[f'PC{i+1}' for i in range(43)])
-    # df_untested_mol_pca = pd.concat([df_untested_mol_pca, df_descriptors], axis=1)
+    
+    #add the SMILES and inhibition labels back to the PCA data
+    df_untested_mol_pca = pd.DataFrame(df_untested_mol_pca, columns=[f'PC{i+1}' for i in range(43)])
+    df_untested_mol_pca = pd.concat([df_untested_mol_pca, df_descriptors], axis=1)
 
-    # placeholder_value = -999  # Example placeholder value
-    # df_untested_mol_pca_filled = df_untested_mol_pca.fillna(placeholder_value)
+    placeholder_value = -999  # Example placeholder value
+    df_untested_mol_pca_filled = df_untested_mol_pca.fillna(placeholder_value)
     
 
-    # #Make predictions on the preprocessed data
-    # predictions = pca_model.predict(df_untested_mol_pca_filled)
-    # print(predictions)
+    #Make predictions on the preprocessed data
+    predictions = pca_model.predict(df_untested_mol_pca_filled)
+    
     #Thresholding to convert probabilities into class labels
-    # predicted_labels = (predictions >= 0.5).astype(int) 
+    predicted_labels = (predictions >= 0.5).astype(int) 
 
 
-    # df_untested_mol_pca[['PKM2_inhibition', 'ERK2_inhibition']] = predicted_labels
-    # df_final = pd.DataFrame(columns=['SMILES','PKM2_inhibition', 'ERK2_inhibition'])
+    df_untested_mol_pca[['PKM2_inhibition', 'ERK2_inhibition']] = predicted_labels
+    df_final = pd.DataFrame(columns=['SMILES','PKM2_inhibition', 'ERK2_inhibition'])
 
-    # # You can populate 'df_final' with values from 'df_untested_mol_pca' as needed
-    # df_final['SMILES'] = df_smiles
-    # df_final['PKM2_inhibition'] = df_untested_mol_pca['PKM2_inhibition']
-    # df_final['ERK2_inhibition'] = df_untested_mol_pca['ERK2_inhibition']
-    # df_final.to_csv("prediction.csv", index=False)
+    #You can populate 'df_final' with values from 'df_untested_mol_pca' as needed
+    df_final['SMILES'] = df_smiles
+    df_final['PKM2_inhibition'] = df_untested_mol_pca['PKM2_inhibition']
+    df_final['ERK2_inhibition'] = df_untested_mol_pca['ERK2_inhibition']
+    df_final.to_csv("prediction.csv", index=False)
 

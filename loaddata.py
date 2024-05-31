@@ -4,6 +4,7 @@ import pandas as pd
 from rdkit.Chem import Descriptors
 from rdkit.Chem import PandasTools
 
+
 def load_data(input_file):
     with open(input_file, 'r') as infile:
         df = pd.read_csv(infile)

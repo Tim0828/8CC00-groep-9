@@ -6,27 +6,23 @@ import pandas as pd
 
 # VAL_SPLIT = 0.02
 
-input_file = 'PCA_data.csv'
+input_file = 'oversampled_molecules_with_descriptors.csv'
 # training data 
 with open(input_file, 'r') as infile:
         df = pd.read_csv(infile)
 
 # split X and y 
 dfy = df[['PKM2_inhibition', 'ERK2_inhibition']]
-df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
+df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition', 'SMILES'])
 dfx = df
 
 # Convert DataFrame to NumPy array
 x = dfx.values
-print(x.shape)
 y = dfy.values
 
-# # get only the last ..% of the data
-# x = x[-int(len(x)*VAL_SPLIT):]
-# y = y[-int(len(y)*VAL_SPLIT):]
 
 # load the model
-model_name = 'my_modelPCA1.keras'
+model_name = 'my_model.keras'
 model = load_model(model_name)
 
 # # Evaluate the model on the test data using `evaluate`
@@ -35,10 +31,17 @@ model = load_model(model_name)
 # print("test loss, test acc:", results)
 
 # Generate predictions
-y = model.predict(x)
-df_predictions = pd.DataFrame(y, columns=['PKM2_inhibition', 'ERK2_inhibition'])
-print(df_predictions.head())
-df_predictions.to_csv('predictions1.csv', index=False)
+# validate 
+y_pred = model.predict(x)
+y_pred_binary = np.where(y_pred > 0.5, 1, 0)
+# calculate accuracy
+from sklearn.metrics import accuracy_score
+accuracy = accuracy_score(y, y_pred_binary)
+print("Accuracy over test: %.2f%%" % (accuracy*100))
+
+# df_predictions = pd.DataFrame(y, columns=['PKM2_inhibition', 'ERK2_inhibition'])
+# print(df_predictions.head())
+# df_predictions.to_csv('predictions1.csv', index=False)
 
 
 # # Plot the results

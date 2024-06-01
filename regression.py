@@ -9,6 +9,7 @@ from sklearn.linear_model import LinearRegression
 import pandas as pd 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
+from sklearn.pipeline import Pipeline 
 
 #willen we ook een plot van de test en train data -> voor verschil met machine learning
 #from sklearn.preprocessing import PolynomialFeatures 
@@ -38,16 +39,16 @@ df_scaled = scalerminmax.fit_transform(df_untested_data)
 
 pca = PCA() 
 pca.fit_transform(df_scaled)
-cumulative_explained_variance = np.cumsum(pca.explained_variance_ratio_)
+cumulative_explained_variance = pca.explained_variance_ratio_.cumsum()
+
 # Determine the number of components needed to explain 90% of the variance
 desired_variance = 0.90
 num_components = np.argmax(cumulative_explained_variance >= desired_variance) + 1
 #loose components who have too little influence
-pca=PCA(n=num_components)
+pca=PCA(n_components=int(num_components))
 df_untested_mol_pca = pca.fit_transform(df_scaled)
 
-
-X_train, X_test, y_train, y_test = train_test_split(df_untested_mol_pca,df_descriptors, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(df_untested_mol_pca,df_descriptors, test_size=0.2)
 
 # Fit the regression model
 model = LinearRegression()

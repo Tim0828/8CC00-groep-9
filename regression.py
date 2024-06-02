@@ -9,7 +9,7 @@ from sklearn.linear_model import LinearRegression
 import pandas as pd 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
-from sklearn.pipeline import Pipeline 
+
 
 #willen we ook een plot van de test en train data -> voor verschil met machine learning
 #from sklearn.preprocessing import PolynomialFeatures 

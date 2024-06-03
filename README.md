@@ -14,7 +14,7 @@
     * suggesties? (vul dan deze readme aan)
 4. Identification of structure-activity relationships
     * decision trees
-    * regression
+    * "logistic" regression 
     * clustering. (e.g. by kMeans)
 5. Best approach: speed, accuracy
     * Deep learning model (for example with [keras](https://keras.io/getting_started/intro_to_keras_for_engineers/))

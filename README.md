@@ -45,3 +45,12 @@ Deep learning:
 
 Taken:
 Iedereen PCA voor volgende meeting, want het is redelijk nieuw concept voor iedereen. Dan kunnen we het vergelijken welke het beste is. Daarna kan iedereen gewoon aan zn eigen stukje werken.
+
+++ Notes Meeting 04-06 ++
+
+Iedereen gaat verder
+Geen k-means, maar k nearest neighbour en RF
+Beste approach? > liever false positive dan false negative, balanced accuracy?
+Voor deap learning: slide over binary coefficient
+Volgende week kiezen welke approach het beste is.
+

@@ -10,7 +10,8 @@ from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
 from sklearn.preprocessing import StandardScaler
 from keras.layers import Dropout
-
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 
 # constants
 VAL_SPLIT = 0.2
@@ -112,8 +113,17 @@ class FreshDeep:
     def load(self, filename):
         self.model = keras.models.load_model(filename)
 
+def plot_confusion_matrix(y_true, y_pred, title):
+    cm = confusion_matrix(y_true, y_pred)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.title(title)
+    plt.show()
+
 # get the data
-x_train, x_test, y_train, y_test = get_data("scaled_tested.csv", VAL_SPLIT)
+x_train, x_test, y_train, y_test = get_data("tested_molecules_without_SMILES.csv", VAL_SPLIT)
 
 # train the model
 model = FreshDeep()
@@ -130,9 +140,13 @@ print(result)
 # print confusion matrix
 y_pred = model.predict(x_test)
 y_pred = np.round(y_pred)
-print('Confusion matrix:')
-print(np.sum(y_test, axis=0))
-print(np.sum(y_pred, axis=0))
+# print('Confusion matrix:')
+# print(np.sum(y_test, axis=0))
+# print(np.sum(y_pred, axis=0))
 
+for i, target in enumerate(['PKM2_inhibition', 'ERK2_inhibition']):
+    print(f'Confusion matrix for {target}:')
+    plot_confusion_matrix(y_test[:, i], y_pred[:, i], title=f'Confusion Matrix for {target}')
 # save the model
-model.save('fresh_model.keras')
+#model.save('fresh_model.keras')
+

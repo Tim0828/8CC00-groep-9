@@ -4,6 +4,8 @@ import pandas as pd
 from rdkit.Chem import Descriptors
 from rdkit.Chem import PandasTools
 
+
+
 def load_data(input_file):
    
     df = pd.read_csv(input_file)
@@ -30,7 +32,7 @@ def load_data(input_file):
     df = df.dropna(subset=['SMILES'])
     # Drop ROMol column for saving
     df.drop('ROMol', axis=1, inplace=True)
-
+    
     return df
 
 input_file = 'tested_molecules.csv'

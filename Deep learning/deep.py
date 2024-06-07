@@ -57,7 +57,7 @@ def get_model(input_size):
 
     model.compile(optimizer='adam', 
                   loss='binary_crossentropy', 
-                  metrics=['accuracy'])
+                  metrics=['binary_accuracy'])
     return model
 
 input_size = x_train.shape[1]
@@ -75,8 +75,8 @@ def train_and_validate(model, VAL_SPLIT):
     # # list all data in history
     # print(history.history.keys())
     # summarize history for accuracy
-    plt.plot(history.history['accuracy'])
-    plt.plot(history.history['val_accuracy'])
+    plt.plot(history.history['binary_accuracy'])
+    plt.plot(history.history['val_binary_accuracy'])
     plt.title('model accuracy')
     plt.ylabel('accuracy')
     plt.xlabel('epoch')
@@ -97,18 +97,6 @@ def train_and_validate(model, VAL_SPLIT):
     return
 
 train_and_validate(model, VAL_SPLIT)
-
-# validate 
-y_pred = model.predict(x_test)
-y_pred_binary = np.where(y_pred > 0.5, 1, 0)
-# calculate accuracy
-from sklearn.metrics import accuracy_score
-accuracy = accuracy_score(y_test, y_pred_binary)
-print("Binary Accuracy over X_test: %.2f%%" % (accuracy*100))
-# calculate precision
-from sklearn.metrics import precision_score
-precision = precision_score(y_test, y_pred_binary, average='weighted')
-print("Precision over X_test: %.2f%%" % (precision*100))
 
 
 # save the model

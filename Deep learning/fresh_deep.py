@@ -122,6 +122,15 @@ def plot_confusion_matrix(y_true, y_pred, title):
     plt.title(title)
     plt.show()
 
+def print_confusion_matrix(y_true, y_pred, target):
+        print(f'Confusion matrix for {target}:')
+        cm = confusion_matrix(y_true, y_pred)
+        print(cm)
+        # calculate balanced accuracy
+        tn, fp, fn, tp = cm.ravel()
+        balanced_accuracy = (tp / (tp + fn) + tn / (tn + fp)) / 2
+        print(f'Balanced accuracy for {target}: {balanced_accuracy}')
+
 # get the data
 x_train, x_test, y_train, y_test = get_data("tested_molecules_without_SMILES.csv", VAL_SPLIT)
 
@@ -140,13 +149,10 @@ print(result)
 # print confusion matrix
 y_pred = model.predict(x_test)
 y_pred = np.round(y_pred)
-# print('Confusion matrix:')
-# print(np.sum(y_test, axis=0))
-# print(np.sum(y_pred, axis=0))
 
 for i, target in enumerate(['PKM2_inhibition', 'ERK2_inhibition']):
-    print(f'Confusion matrix for {target}:')
-    plot_confusion_matrix(y_test[:, i], y_pred[:, i], title=f'Confusion Matrix for {target}')
+    print_confusion_matrix(y_test[:, i], y_pred[:, i], target)
+    # plot_confusion_matrix(y_test[:, i], y_pred[:, i], title=f'Confusion Matrix for {target}')
 # save the model
-#model.save('fresh_model.keras')
+model.save('fresh_model.keras')
 

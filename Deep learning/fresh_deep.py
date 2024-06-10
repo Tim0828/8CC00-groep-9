@@ -132,7 +132,7 @@ def print_confusion_matrix(y_true, y_pred, target):
         print(f'Balanced accuracy for {target}: {balanced_accuracy}')
 
 # get the data
-x_train, x_test, y_train, y_test = get_data("tested_molecules_without_SMILES.csv", VAL_SPLIT)
+x_train, x_test, y_train, y_test = get_data(r"data\untested_molecules_with_descriptors.csv", VAL_SPLIT)
 
 # train the model
 model = FreshDeep()
@@ -154,5 +154,5 @@ for i, target in enumerate(['PKM2_inhibition', 'ERK2_inhibition']):
     print_confusion_matrix(y_test[:, i], y_pred[:, i], target)
     # plot_confusion_matrix(y_test[:, i], y_pred[:, i], title=f'Confusion Matrix for {target}')
 # save the model
-model.save('fresh_model.keras')
+# model.save('fresh_model.keras')
 

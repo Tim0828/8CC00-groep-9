@@ -9,8 +9,7 @@ from load_clean_data import load_data
 
 
 # Load your trained PCA model
-pca_model = load_model('my_modelPCA57.keras')
-
+pca_model = load_model('my_modelPCA999.keras')
 
 if pca_model is None:
     print("Error: Failed to load the model.")

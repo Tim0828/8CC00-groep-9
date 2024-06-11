@@ -54,3 +54,15 @@ Beste approach? > liever false positive dan false negative, balanced accuracy?
 Voor deap learning: slide over binary coefficient
 Volgende week kiezen welke approach het beste is.
 
+++ Notes Meeting 11-06 ++
+Hiske & Julia
+Random Forest op geselecteerde variables: 0.95-0.98
+--> balanced accuracy berekenen voor de vergelijking
+Levi & Duy
+Ook random forest en k-NN. 
+--> balaced accuracy nog berekenen
+Rosanne & Isabeau
+Regressie, met geselecteerde kolommen, ook met gewichten geprobeerd (daar is alle kolommen beter): ~50% (pp uitgewerkt, nog samenvoegen?)
+Isabeau nog PCA: andere PCA resultaten, even testen op modellen
+Jelle & Tim
+

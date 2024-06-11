@@ -65,4 +65,5 @@ Rosanne & Isabeau
 Regressie, met geselecteerde kolommen, ook met gewichten geprobeerd (daar is alle kolommen beter): ~50% (pp uitgewerkt, nog samenvoegen?)
 Isabeau nog PCA: andere PCA resultaten, even testen op modellen
 Jelle & Tim
-
+Fresh model: 0.97-0.99
+Hyperparametertuning

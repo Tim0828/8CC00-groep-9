@@ -124,8 +124,8 @@ class FreshDeep:
             layers.Dense(2, activation='sigmoid')
         ])
         return model
-    def train(self, x_train, y_train, epochs=1):
-        self.history = self.model.fit(x_train, y_train, epochs=epochs, validation_split=0.2, callbacks=[keras.callbacks.EarlyStopping(patience=10)])
+    def train(self, x_train, y_train, epochs=1, w=1):
+        self.history = self.model.fit(x_train, y_train, epochs=epochs, validation_split=0.2, callbacks=[keras.callbacks.EarlyStopping(patience=10)], class_weight={0: 1, 1: w})
     def plot(self):
         plt.plot(self.history.history['auc'])
         plt.plot(self.history.history['val_auc'])
@@ -175,11 +175,14 @@ def iterative_training(model, iterations, initial_lr, x_train, x_test, y_train, 
     i = 0
     log = [(0, 0)]
     while i < iterations:
+        print(f'Iteration {i+1}')
         # Adjust learning rate
         new_lr = initial_lr / (i + 1)
         K.set_value(model.optimizer.learning_rate, new_lr)
+        # #adjust class weights
+        # w = 1*10**i
 
-        model.train(x_train, y_train)
+        model.train(x_train, y_train, epochs=25, w=1)
         current = tuple(model.balanced_accuracy(y_test, x_test))
         log.append(current)
         if len(log) > 1:
@@ -188,10 +191,10 @@ def iterative_training(model, iterations, initial_lr, x_train, x_test, y_train, 
                 print(f'New best balanced accuracies: {best}')
                 model.save(r'data\best_model.keras')
         i += 1
-    return model
+    return log
         
-model = iterative_training(model, 1, 0.01, x_train, x_test, y_train, y_test)
-
+log = iterative_training(model, 10, 0.01, x_train, x_test, y_train, y_test)
+print(log)
 # # evaluate the model on original data
 # x_train, x_test, y_train, y_test = get_data(r"data\tested_molecules_with_descriptors.csv", VAL_SPLIT)
 # print(model.balanced_accuracy(y_test, x_test))

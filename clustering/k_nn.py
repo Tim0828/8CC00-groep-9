@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, balanced_accuracy_score, classification_report
+from sklearn.utils import compute_sample_weight
+from imblearn.over_sampling import SMOTE
 
 # reading in the data:
 data = pd.read_csv('PCA_data.csv')
@@ -29,10 +31,13 @@ def Knearestneighbour(train_features, test_features, train_targets, test_targets
             train_targets (Pandas Dataframe): single column with targets used for training the algorithm
             test_targets (Pandas Dataframe): single column with targets used for testing the algorithm
         """
+        # balance the training set (Hogere balanced accuracy, maar wel meer false positives)
+        smote = SMOTE(random_state=42)
+        x_train, y_train = smote.fit_resample(train_features, train_targets)
 
         # train KNN classifier
         knn = KNeighborsClassifier(n_neighbors=2) 
-        knn.fit(train_features, train_targets)
+        knn.fit(x_train, y_train)
 
         # predict on the test set
         pred_targets = knn.predict(test_features)

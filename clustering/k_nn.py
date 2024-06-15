@@ -44,7 +44,7 @@ def Knearestneighbour(train_features, test_features, train_targets, test_targets
         # for k in test_neighbours: 
                 
         #     knn = KNeighborsClassifier(n_neighbors=k)
-        #     scores = cross_val_score(knn, x_train, y_train, cv=10, scoring='accuracy')
+        #     scores = cross_val_score(knn, x_train, y_train, cv=10, scoring='balanced_accuracy')
         #     best_scores.append(scores.mean())
         
         # k_best = test_neighbours[np.argmax(best_scores)]

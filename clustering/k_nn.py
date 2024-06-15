@@ -37,9 +37,10 @@ def Knearestneighbour(train_features, test_features, train_targets, test_targets
         smote = SMOTE(random_state=42)
         x_train, y_train = smote.fit_resample(train_features, train_targets)
 
-        ### train KNN classifier + cross validating until square root of N samples gives k_best = 2
+        ### train KNN classifier + cross validating until square root of N samples
         # best_scores = list()
-        # test_neighbours = list(range(1, int(sqrt(x_train.shape[0])+1)))
+        # test_neighbours = list(range(1, int(sqrt(x_train.shape[0])+1))) THIS GIVES k_best = 2
+        # test_neighbours = list(range(1, int(sqrt(x_train.shape[0])+1)),2) THIS GIVES k_best = 1 = 3 
 
         # for k in test_neighbours: 
                 

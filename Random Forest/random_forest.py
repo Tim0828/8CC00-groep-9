@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, balanced_accuracy_score, classification_report
 from imblearn.ensemble import BalancedRandomForestClassifier
 from imblearn.over_sampling import SMOTE
 
@@ -14,51 +14,6 @@ df_pca = pd.read_csv(r"C:\Users\20223319\OneDrive - TU Eindhoven\Bestanden\Jaar 
 df_X = df_pca.drop(["PKM2_inhibition","ERK2_inhibition"],axis=1)
 df_Y = df_pca[["PKM2_inhibition","ERK2_inhibition"]]
 X_train, X_test, Y_train, Y_test = train_test_split(df_X,df_Y,test_size=0.3)
-
-##### Standard Random Forest #####
-
-# fitting data:
-classifier = RandomForestClassifier(100)
-rf = classifier.fit(X_train,Y_train)
-
-# evaluating the result:
-Y_predict = rf.predict(X_test)
-accuracy = accuracy_score(Y_test,Y_predict)
-
-cm = confusion_matrix(Y_test["PKM2_inhibition"], Y_predict[:,0])
-ConfusionMatrixDisplay(confusion_matrix=cm).plot()
-plt.title("Standard Random Forest (PKM2)")
-plt.show(block = False)
-
-cm = confusion_matrix(Y_test["ERK2_inhibition"], Y_predict[:,0])
-ConfusionMatrixDisplay(confusion_matrix=cm).plot()
-plt.title("Standard Random Forest (ERK2)")
-plt.show(block = False)
-
-
-##### Balanced Random Forest #####
-
-# fitting data:
-balanced_classifier = BalancedRandomForestClassifier(100)
-balanced_rf = balanced_classifier.fit(X_train,Y_train["PKM2_inhibition"])
-
-# evaluating the result:
-Y_predict = balanced_rf.predict(X_test)
-cm = confusion_matrix(Y_test["PKM2_inhibition"], Y_predict)
-ConfusionMatrixDisplay(confusion_matrix=cm).plot()
-plt.title("Balanced Random Forest (PKM2)")
-plt.show(block = False)
-
-# fitting data:
-balanced_rf = balanced_classifier.fit(X_train,Y_train["ERK2_inhibition"])
-
-# evaluating the result:
-Y_predict = balanced_rf.predict(X_test)
-cm = confusion_matrix(Y_test["ERK2_inhibition"], Y_predict)
-ConfusionMatrixDisplay(confusion_matrix=cm).plot()
-plt.title("Balanced Random Forest (ERK2)")
-plt.show(block = False)
-
 
 ##### Standard Random Forest + SMOTE #####
 

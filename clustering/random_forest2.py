@@ -51,7 +51,7 @@ def train_random_forest(X_train, Y_train):
         'min_samples_leaf': [1,2,4,10]
         }
     print("1")
-    grid_search = RandomizedSearchCV(estimator=classifier, param_distributions=param_grid, scoring='f1', n_jobs=-1, cv=5, n_iter=50)
+    grid_search = RandomizedSearchCV(estimator=classifier, param_distributions=param_grid, scoring='f1', n_jobs=-1, cv=None, n_iter=50)
     print("2")
     grid_search.fit(over_X_train, over_Y_train)
     print("3")

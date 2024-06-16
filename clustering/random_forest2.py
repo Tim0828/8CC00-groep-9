@@ -1,6 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, balanced_accuracy_score, classification_report
 from imblearn.over_sampling import SMOTE
@@ -44,12 +44,17 @@ def train_random_forest(X_train, Y_train):
     
     # using grid search to find best hyperparameters for the random forest:
     param_grid = {
-        'n_estimators': [10, 100, 200],
-        'max_depth': [2,3,5,7,10,20,None],
-        'max_features': [1,3,7,10]
+        'n_estimators': list(range(100,2000,100)),
+        'max_depth': [1,5,10,20,30,40,50,60,70,80,90,100,None],
+        'max_features': ['auto','sqrt'],
+        'min_samples_split': [2,5,10],
+        'min_samples_leaf': [1,2,4,10]
         }
-    grid_search = GridSearchCV(estimator=classifier, param_grid=param_grid, scoring='f1', n_jobs=-1)
+    print("1")
+    grid_search = RandomizedSearchCV(estimator=classifier, param_distributions=param_grid, scoring='f1', n_jobs=-1, cv=5, n_iter=50)
+    print("2")
     grid_search.fit(over_X_train, over_Y_train)
+    print("3")
 
     best_model = grid_search.best_estimator_
     return best_model
@@ -74,6 +79,7 @@ def evaluate_random_forest(rf_model, X_test, Y_test):
     # Classfication report and balanced accuracy
     print("Classification report:\n", classification_report(Y_test, Y_predict))
     print("Balanced Accuracy: ", balanced_accuracy_score(Y_test,Y_predict))
+    print("Total Accuracy: ", accuracy_score(Y_test,Y_predict))
     
 X_train, X_test, Y_train, Y_test = get_data(r"C:\Users\20223319\OneDrive - TU Eindhoven\Bestanden\Jaar 2\Q4\Advanced Programming\Group Assignment\data\PCA_data.csv")
 

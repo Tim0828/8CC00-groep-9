@@ -46,8 +46,6 @@ def get_SMOTEdata(input_file, VAL_SPLIT):
     # drop SMILES if not already
     if 'SMILES' in df.columns:
         df = df.drop(columns = ['SMILES'])
-
-    df = apply_SMOTE(df)
     
     # split X and y 
     dfy = df[['PKM2_inhibition', 'ERK2_inhibition']]
@@ -65,43 +63,23 @@ def get_SMOTEdata(input_file, VAL_SPLIT):
     # Split the data into training and test sets    
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=VAL_SPLIT, random_state=42)
 
-    scaler = StandardScaler()
-    x_train = scaler.fit_transform(x_train)
-    x_test = scaler.transform(x_test)
+    # concatenate the training data
+    df_train = np.concatenate((x_train, y_train), axis=1)
+    df_train = pd.DataFrame(df_train, columns=df.columns.to_list() + dfy.columns.to_list())
 
-    return x_train, x_test, y_train, y_test
+    # SMOTE on training data
+    df_train = apply_SMOTE(df_train)
 
-def get_data(input_file, VAL_SPLIT):
-    # training data 
-    with open(input_file, 'r') as infile:
-            df = pd.read_csv(infile)
-
-
-    # drop SMILES if not already
-    if 'SMILES' in df.columns:
-        df = df.drop(columns = ['SMILES'])
+    # split the data back into x and y
+    y_train = df_train[['PKM2_inhibition', 'ERK2_inhibition']].values
+    x_train = df_train.drop(columns=['PKM2_inhibition', 'ERK2_inhibition']).values
     
-    # split X and y 
-    dfy = df[['PKM2_inhibition', 'ERK2_inhibition']]
-    df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
-    dfx = df
-
-    # Convert DataFrame to NumPy array
-    x = dfx.values
-    y = dfy.values
-
-    # fill nan values with 0
-    x = np.nan_to_num(x)
-    y = np.nan_to_num(y)
-
-    # Split the data into training and test sets    
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=VAL_SPLIT, random_state=42)
-
-    scaler = StandardScaler()
-    x_train = scaler.fit_transform(x_train)
-    x_test = scaler.transform(x_test)
+    # scaler = StandardScaler()
+    # x_train = scaler.fit_transform(x_train)
+    # x_test = scaler.transform(x_test)
 
     return x_train, x_test, y_train, y_test
+
 
 class FreshDeep:
       
@@ -109,7 +87,7 @@ class FreshDeep:
         self.model = self.build_model()
         self.model.optimizer = keras.optimizers.Adam(learning_rate=0.01)
         self.optimizer = self.model.optimizer
-        self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=['AUC'])
+        self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=['accuracy'])
         self.history = None
     def build_model(self):
         model = keras.Sequential([
@@ -133,10 +111,10 @@ class FreshDeep:
     def train(self, x_train, y_train, epochs=1, w=1):
         self.history = self.model.fit(x_train, y_train, epochs=epochs, validation_split=0.2, callbacks=[keras.callbacks.EarlyStopping(patience=10)], class_weight={0: 1, 1: w})
     def plot(self):
-        plt.plot(self.history.history['auc'])
-        plt.plot(self.history.history['val_auc'])
-        plt.title('model auc')
-        plt.ylabel('auc')
+        plt.plot(self.history.history['accuracy'])
+        # plt.plot(self.history.history['val_auc'])
+        plt.title('model')
+        plt.ylabel('accuracy')
         plt.xlabel('epoch')
         plt.legend(['train', 'validation'], loc='upper left')
         plt.show()
@@ -162,18 +140,8 @@ class FreshDeep:
         pkm_ba = (tp / (tp + fn) + tn / (tn + fp)) / 2
         return erk_ba, pkm_ba
 
-# def plot_confusion_matrix(model, y_true, title):
-#     cm = model.conf_matrix(y_true)
-#     plt.figure(figsize=(8, 6))
-#     sns.heatmap(cm, annot=True, fmt='d', cmap='Blues')
-#     plt.xlabel('Predicted')
-#     plt.ylabel('Actual')
-#     plt.title(title)
-#     plt.show()
-
-
 # get the data
-x_train, x_test, y_train, y_test = get_data(r"data\PCA_data.csv", VAL_SPLIT)
+x_train, x_test, y_train, y_test = get_SMOTEdata(r"data\PCA_data.csv", VAL_SPLIT)
 
 # train the model
 model = FreshDeep()

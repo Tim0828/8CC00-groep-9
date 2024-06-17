@@ -5,7 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix, ConfusionMatrixDisplay, balanced_accuracy_score, classification_report
 from imblearn.over_sampling import SMOTE
 
-def get_data(infile):
+def get_data(infile_X, infile_pca):
     """Retrieves the PCA data and splits into training and testing data.
 
     Args:
@@ -15,12 +15,12 @@ def get_data(infile):
         X_train, X_test, Y_train, Y_test: Data split up into training and test data.
     """
     # reading the data: 
-    df_pca = pd.read_csv(infile)
+    df_pca = pd.read_csv(infile_pca)
 
     # splitting the data into test and training data:
-    df_X = df_pca.drop(["PKM2_inhibition","ERK2_inhibition"],axis=1)
-    df_Y = df_pca[["PKM2_inhibition","ERK2_inhibition"]]
-    X_train, X_test, Y_train, Y_test = train_test_split(df_X,df_Y,test_size=0.3)
+    df_X = pd.read_csv(infile_X)
+    df_Y = df_pca[["PKM2_inhibition","ERK2_inhibition"]].drop(0)
+    X_train, X_test, Y_train, Y_test = train_test_split(df_X,df_Y,test_size=0.2)
     
     return X_train, X_test, Y_train, Y_test
 
@@ -44,19 +44,19 @@ def train_random_forest(X_train, Y_train):
     
     # using grid search to find best hyperparameters for the random forest:
     param_grid = {
-        'n_estimators': list(range(100,2000,100)),
-        'max_depth': [1,5,10,20,30,40,50,60,70,80,90,100,None],
+        'n_estimators': [10,50,100,200],
+        'max_depth': [5,10,20,50,100,None],
         'max_features': ['auto','sqrt'],
-        'min_samples_split': [2,5,10],
+        'min_samples_split': [1,2,5,10],
         'min_samples_leaf': [1,2,4,10]
         }
-    grid_search = RandomizedSearchCV(estimator=classifier, param_distributions=param_grid, scoring='f1', n_jobs=-1, cv=None, n_iter=50)
+    grid_search = RandomizedSearchCV(estimator=classifier, param_distributions=param_grid, scoring='roc_auc', n_jobs=-1, cv=None, n_iter=50)
     grid_search.fit(over_X_train, over_Y_train)
 
     best_model = grid_search.best_estimator_
     return best_model
 
-def evaluate_random_forest(rf_model, X_test, Y_test):
+def evaluate_model(model, X_test, Y_test):
     """Evaluates the random forest model based on the test data.
 
     Args:
@@ -65,7 +65,7 @@ def evaluate_random_forest(rf_model, X_test, Y_test):
         Y_test (Array): Inhibition test data.
     """
     # prediction based on model:
-    Y_predict = rf_model.predict(X_test)
+    Y_predict = model.predict(X_test)
     
     # plotting confusion matrix:
     cm = confusion_matrix(Y_test,Y_predict)
@@ -77,16 +77,21 @@ def evaluate_random_forest(rf_model, X_test, Y_test):
     print("Classification report:\n", classification_report(Y_test, Y_predict))
     print("Balanced Accuracy: ", balanced_accuracy_score(Y_test,Y_predict))
     print("Total Accuracy: ", accuracy_score(Y_test,Y_predict))
-    
-X_train, X_test, Y_train, Y_test = get_data(r"C:\Users\20223319\OneDrive - TU Eindhoven\Bestanden\Jaar 2\Q4\Advanced Programming\Group Assignment\data\PCA_data.csv")
+
+infile_X_PKM2 = "data/X_best_PKM2_pca.csv" 
+infile_X_ERK2 = "data/X_best_ERK2_pca.csv"  
+infile_pca = "data/PCA_data.csv"
+
+X_train_PKM2, X_test_PKM2, Y_train, Y_test = get_data(infile_X_PKM2, infile_pca)
+X_train_ERK2, X_test_ERK2, Y_train, Y_test = get_data(infile_X_ERK2, infile_pca)
 
 Y_train_PKM2 = Y_train["PKM2_inhibition"]
 Y_train_ERK2 = Y_train["ERK2_inhibition"]
 Y_test_PKM2 = Y_test["PKM2_inhibition"]
 Y_test_ERK2 = Y_test["ERK2_inhibition"]
 
-rf_model_PKM2 = train_random_forest(X_train,Y_train_PKM2)
-rf_model_ERK2 = train_random_forest(X_train,Y_train_ERK2)
+rf_model_PKM2 = train_random_forest(X_train_PKM2,Y_train_PKM2)
+rf_model_ERK2 = train_random_forest(X_train_ERK2,Y_train_ERK2)
 
-evaluate_random_forest(rf_model_PKM2, X_test,Y_test_PKM2)
-evaluate_random_forest(rf_model_ERK2, X_test,Y_test_ERK2)
+evaluate_model(rf_model_PKM2, X_test_PKM2,Y_test_PKM2)
+evaluate_model(rf_model_ERK2, X_test_ERK2,Y_test_ERK2)

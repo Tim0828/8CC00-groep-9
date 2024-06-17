@@ -1,96 +1,84 @@
-# ahh a fresh start
-
-# imports
+import os
 import numpy as np
-import keras
-from keras import layers
+import tensorflow as tf
+from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from imblearn.over_sampling import SMOTE
 from sklearn.preprocessing import StandardScaler
-from keras.layers import Dropout
+from tensorflow.keras.layers import Dropout
 from sklearn.metrics import confusion_matrix
 import seaborn as sns
 from tensorflow.keras import backend as K
-# constants
+import logging
+from sklearn.model_selection import GridSearchCV
+from tensorflow.keras.wrappers.scikit_learn import KerasClassifier
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Constants
 VAL_SPLIT = 0.2
+BEST_MODEL_PATH = 'data/best_model.keras'
+DATA_PATH = 'data/PCA_data.csv'
+TEST_DATA_PATH = 'deep learning/data/tested_molecules_with_descriptors.csv'
+
 def apply_SMOTE(df):
-     # apply SMOTE to balance the data    
-    # # Convert all column names to strings
+    # Apply SMOTE to balance the data    
     df.columns = df.columns.astype(str)
 
-    # apply smote to balance the data
     smote = SMOTE(sampling_strategy='minority')
 
     resampled_data_1 = smote.fit_resample(df.drop(columns=['ERK2_inhibition']), df['PKM2_inhibition'])
     resampled_data_2 = smote.fit_resample(df.drop(columns=['PKM2_inhibition']), df['ERK2_inhibition'])
 
-    # Convert the resampled data to a DataFrame
     df1 = pd.DataFrame(data=resampled_data_1[0], columns=df.drop(columns=['ERK2_inhibition']).columns)
     df1['PKM2_inhibition'] = resampled_data_1[1]
 
     df2 = pd.DataFrame(data=resampled_data_2[0], columns=df.drop(columns=['PKM2_inhibition']).columns)
     df2['ERK2_inhibition'] = resampled_data_2[1]
 
-    # Concatenate the two DataFrames
     df = pd.concat([df1, df2], axis=0)
     return df
 
-def get_SMOTEdata(input_file, VAL_SPLIT):
-    # training data 
-    with open(input_file, 'r') as infile:
-            df = pd.read_csv(infile)
+def get_data(input_file, val_split):
+    df = pd.read_csv(input_file)
 
-
-    # drop SMILES if not already
     if 'SMILES' in df.columns:
-        df = df.drop(columns = ['SMILES'])
+        df = df.drop(columns=['SMILES'])
     
-    # split X and y 
-    dfy = df[['PKM2_inhibition', 'ERK2_inhibition']]
-    df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
-    dfx = df
+    y_df = df[['PKM2_inhibition', 'ERK2_inhibition']]
+    x_df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
 
-    # Convert DataFrame to NumPy array
-    x = dfx.values
-    y = dfy.values
+    x = x_df.values
+    y = y_df.values
 
-    # fill nan values with 0
     x = np.nan_to_num(x)
     y = np.nan_to_num(y)
 
-    # Split the data into training and test sets    
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=VAL_SPLIT, random_state=42)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=val_split, random_state=42)
 
-    # concatenate the training data
     df_train = np.concatenate((x_train, y_train), axis=1)
-    df_train = pd.DataFrame(df_train, columns=df.columns.to_list() + dfy.columns.to_list())
+    df_train = pd.DataFrame(df_train, columns=df.columns.to_list() + y_df.columns.to_list())
 
-    # SMOTE on training data
     df_train = apply_SMOTE(df_train)
 
-    # split the data back into x and y
     y_train = df_train[['PKM2_inhibition', 'ERK2_inhibition']].values
     x_train = df_train.drop(columns=['PKM2_inhibition', 'ERK2_inhibition']).values
     
-    # scaler = StandardScaler()
-    # x_train = scaler.fit_transform(x_train)
-    # x_test = scaler.transform(x_test)
-
     return x_train, x_test, y_train, y_test
 
-
 class FreshDeep:
-      
     def __init__(self) -> None:
         self.model = self.build_model()
-        self.model.optimizer = keras.optimizers.Adam(learning_rate=0.01)
+        self.model.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
         self.optimizer = self.model.optimizer
         self.model.compile(optimizer=self.optimizer, loss='binary_crossentropy', metrics=['accuracy'])
         self.history = None
+
     def build_model(self):
-        model = keras.Sequential([
+        model = tf.keras.Sequential([
             layers.Dense(256, activation='relu', input_shape=(x_train.shape[1],)),
             Dropout(0.25),
             layers.Dense(128, activation='relu'),
@@ -108,30 +96,37 @@ class FreshDeep:
             layers.Dense(2, activation='sigmoid')
         ])
         return model
+
     def train(self, x_train, y_train, epochs=1, w=1):
-        self.history = self.model.fit(x_train, y_train, epochs=epochs, validation_split=0.2, callbacks=[keras.callbacks.EarlyStopping(patience=10)], class_weight={0: 1, 1: w})
+        self.history = self.model.fit(x_train, y_train, epochs=epochs, validation_split=VAL_SPLIT, callbacks=[tf.keras.callbacks.EarlyStopping(patience=10)], class_weight={0: 1, 1: w})
+
     def plot(self):
         plt.plot(self.history.history['accuracy'])
-        # plt.plot(self.history.history['val_auc'])
-        plt.title('model')
+        plt.title('Model Accuracy')
         plt.ylabel('accuracy')
         plt.xlabel('epoch')
         plt.legend(['train', 'validation'], loc='upper left')
         plt.show()
+
     def evaluate(self, x_test, y_test):
         return self.model.evaluate(x_test, y_test)
+
     def predict(self, x):
         return self.model.predict(x)
+
     def save(self, filename):
         self.model.save(filename)
+
     def load(self, filename):
-        self.model = keras.models.load_model(filename)
+        self.model = tf.keras.models.load_model(filename)
+
     def conf_matrix(self, y_true, x_test):
         y_pred = self.model.predict(x_test)
         y_pred = np.round(y_pred)
         cm_pkm = confusion_matrix(y_true[:, 0], y_pred[:, 0])
         cm_erk = confusion_matrix(y_true[:, 1], y_pred[:, 1])
         return cm_erk, cm_pkm
+
     def balanced_accuracy(self, y_true, x_test):
         cm_erk, cm_pkm = self.conf_matrix(y_true, x_test)
         tn, fp, fn, tp = cm_erk.ravel()
@@ -140,80 +135,87 @@ class FreshDeep:
         pkm_ba = (tp / (tp + fn) + tn / (tn + fp)) / 2
         return erk_ba, pkm_ba
 
-# get the data
-x_train, x_test, y_train, y_test = get_SMOTEdata(r"data\PCA_data.csv", VAL_SPLIT)
+def build_keras_model():
+    model = tf.keras.Sequential([
+        layers.Dense(256, activation='relu', input_shape=(x_train.shape[1],)),
+        Dropout(0.25),
+        layers.Dense(128, activation='relu'),
+        Dropout(0.25),
+        layers.Dense(64, activation='relu'),
+        Dropout(0.25),
+        layers.Dense(32, activation='relu'),
+        Dropout(0.25),
+        layers.Dense(16, activation='relu'),
+        Dropout(0.25),
+        layers.Dense(8, activation='relu'),
+        Dropout(0.25),
+        layers.Dense(4, activation='relu'),
+        Dropout(0.25),
+        layers.Dense(2, activation='sigmoid')
+    ])
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01), loss='binary_crossentropy', metrics=['accuracy'])
+    return model
 
-# train the model
-model = FreshDeep()
+def perform_hyperparameter_tuning(x_train, y_train):
+    model = KerasClassifier(build_fn=build_keras_model, verbose=0)
+    param_grid = {
+        'batch_size': [10, 20, 40],
+        'epochs': [10, 20, 30]
+    }
+    grid = GridSearchCV(estimator=model, param_grid=param_grid, n_jobs=-1, cv=3)
+    grid_result = grid.fit(x_train, y_train)
+    logging.info(f"Best: {grid_result.best_score_} using {grid_result.best_params_}")
+    return grid_result.best_estimator_
+
 def iterative_training(model, iterations, initial_lr, x_train, x_test, y_train, y_test):
     i = 0
     log = [(0, 0)]
-    while i < iterations:
-        print(f'Iteration {i+1}')
-        # # Adjust learning rate
-        # new_lr = initial_lr / (i + 1)
-        # K.set_value(model.optimizer.learning_rate, new_lr)
-        #adjust class weights
-        w = 1*10**i
+    best_balanced_accuracy = (0, 0)
 
-        model.train(x_train, y_train, epochs=25, w=1)
+    while i < iterations:
+        logging.info(f'Iteration {i+1}')
+        w = 1 * 10**i
+        model.train(x_train, y_train, epochs=25, w=w)
         current = tuple(model.balanced_accuracy(y_test, x_test))
         log.append(current)
-        if len(log) > 1:
-            if log[-1] > log[-2]:
-                best = log[-1]
-                print(f'New best balanced accuracies: {best}')
-                model.save(r'data\best_model.keras')
+        if current > best_balanced_accuracy:
+            best_balanced_accuracy = current
+            logging.info(f'New best balanced accuracies: {best_balanced_accuracy}')
+            model.save(BEST_MODEL_PATH)
         i += 1
     return log
-        
+
+# Get the data
+x_train, x_test, y_train, y_test = get_data(DATA_PATH, VAL_SPLIT)
+
+# Hyperparameter tuning
+best_model = perform_hyperparameter_tuning(x_train, y_train)
+
+# Train the model
+model = FreshDeep()
 log = iterative_training(model, 10, 0.01, x_train, x_test, y_train, y_test)
-print(log)
-# model.train(x_train=x_train, y_train=y_train, epochs=30)
-# grab raw data
-with open(r'deep learning\data\tested_molecules_with_descriptors.csv', 'r') as infile:
-    df = pd.read_csv(infile)
+logging.info(log)
 
+# Test the best model
+model.load(BEST_MODEL_PATH)
+df = pd.read_csv(TEST_DATA_PATH)
 
-# drop SMILES if not already
 if 'SMILES' in df.columns:
-    df = df.drop(columns = ['SMILES'])
+    df = df.drop(columns=['SMILES'])
 
-# split X and y 
-dfy = df[['PKM2_inhibition', 'ERK2_inhibition']]
-df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
-dfx = df
+y_df = df[['PKM2_inhibition', 'ERK2_inhibition']]
+x_df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
 
-# Convert DataFrame to NumPy array
-x = dfx.values
-y = dfy.values
+x = x_df.values
+y = y_df.values
 
-# fill nan values with 0
 x = np.nan_to_num(x)
 y = np.nan_to_num(y)
 
-# test 'best model'
 cm1, cm2 = model.conf_matrix(y, x)
-acc = model.evaluate(y_test=y,x_test=x)
-bacc = model.balanced_accuracy(y_true=y,x_test=x)
+acc = model.evaluate(x_test=x, y_test=y)
+bacc = model.balanced_accuracy(y_true=y, x_test=x)
 
-print('acc: ', acc,' bacc: ', bacc)
-print(cm1)
-print(cm2)
-# # evaluate the model on original data
-# x_train, x_test, y_train, y_test = get_data(r"data\tested_molecules_with_descriptors.csv", VAL_SPLIT)
-# print(model.balanced_accuracy(y_test, x_test))
-# # evaluate the model
-# result = model.evaluate(x_test, y_test)
-# print(result)
-
-# # print confusion matrix
-# y_pred = model.predict(x_test)
-# y_pred = np.round(y_pred)
-
-# for i, target in enumerate(['PKM2_inhibition', 'ERK2_inhibition']):
-#     # print_confusion_matrix(y_test[:, i], y_pred[:, i], target)
-#     plot_confusion_matrix(y_test[:, i], y_pred[:, i], title=f'Confusion Matrix for {target}')
-# # save the model
-# # model.save('fresh_model.keras')
-
+logging.info(f'acc: {acc} bacc: {bacc}')
+logging.info(cm1)
+logging.info(cm2)

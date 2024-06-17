@@ -113,13 +113,19 @@ class FreshDeep:
         self.history = None
     def build_model(self):
         model = keras.Sequential([
-            layers.Dense(128, activation='relu', input_shape=(x_train.shape[1],)),
+            layers.Dense(256, activation='relu', input_shape=(x_train.shape[1],)),
+            Dropout(0.25),
+            layers.Dense(128, activation='relu'),
             Dropout(0.25),
             layers.Dense(64, activation='relu'),
             Dropout(0.25),
             layers.Dense(32, activation='relu'),
             Dropout(0.25),
             layers.Dense(16, activation='relu'),
+            Dropout(0.25),
+            layers.Dense(8, activation='relu'),
+            Dropout(0.25),
+            layers.Dense(4, activation='relu'),
             Dropout(0.25),
             layers.Dense(2, activation='sigmoid')
         ])
@@ -167,7 +173,7 @@ class FreshDeep:
 
 
 # get the data
-x_train, x_test, y_train, y_test = get_SMOTEdata(r"data\tested_molecules_with_descriptors.csv", VAL_SPLIT)
+x_train, x_test, y_train, y_test = get_data(r"data\PCA_data.csv", VAL_SPLIT)
 
 # train the model
 model = FreshDeep()
@@ -176,11 +182,11 @@ def iterative_training(model, iterations, initial_lr, x_train, x_test, y_train, 
     log = [(0, 0)]
     while i < iterations:
         print(f'Iteration {i+1}')
-        # Adjust learning rate
-        new_lr = initial_lr / (i + 1)
-        K.set_value(model.optimizer.learning_rate, new_lr)
-        # #adjust class weights
-        # w = 1*10**i
+        # # Adjust learning rate
+        # new_lr = initial_lr / (i + 1)
+        # K.set_value(model.optimizer.learning_rate, new_lr)
+        #adjust class weights
+        w = 1*10**i
 
         model.train(x_train, y_train, epochs=25, w=1)
         current = tuple(model.balanced_accuracy(y_test, x_test))
@@ -195,6 +201,37 @@ def iterative_training(model, iterations, initial_lr, x_train, x_test, y_train, 
         
 log = iterative_training(model, 10, 0.01, x_train, x_test, y_train, y_test)
 print(log)
+# model.train(x_train=x_train, y_train=y_train, epochs=30)
+# grab raw data
+with open(r'deep learning\data\tested_molecules_with_descriptors.csv', 'r') as infile:
+    df = pd.read_csv(infile)
+
+
+# drop SMILES if not already
+if 'SMILES' in df.columns:
+    df = df.drop(columns = ['SMILES'])
+
+# split X and y 
+dfy = df[['PKM2_inhibition', 'ERK2_inhibition']]
+df = df.drop(columns=['PKM2_inhibition', 'ERK2_inhibition'])
+dfx = df
+
+# Convert DataFrame to NumPy array
+x = dfx.values
+y = dfy.values
+
+# fill nan values with 0
+x = np.nan_to_num(x)
+y = np.nan_to_num(y)
+
+# test 'best model'
+cm1, cm2 = model.conf_matrix(y, x)
+acc = model.evaluate(y_test=y,x_test=x)
+bacc = model.balanced_accuracy(y_true=y,x_test=x)
+
+print('acc: ', acc,' bacc: ', bacc)
+print(cm1)
+print(cm2)
 # # evaluate the model on original data
 # x_train, x_test, y_train, y_test = get_data(r"data\tested_molecules_with_descriptors.csv", VAL_SPLIT)
 # print(model.balanced_accuracy(y_test, x_test))

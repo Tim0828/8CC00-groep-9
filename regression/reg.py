@@ -12,6 +12,25 @@ class Reg:
         self.highest_BAcc_result = float('-inf')
         self.y_train = self.y_train.values.ravel()
         self.y_test = self.y_test.values.ravel()
+    
+    def SMOTE(self):
+        from imblearn.over_sampling import SMOTE
+        sm = SMOTE(random_state=42)
+        resampled = sm.fit_resample(self.X_train, self.y_train)
+        self.X_train = resampled[0]
+        self.y_train = resampled[1]
+    
+    def PCA(self):
+        # Scaling
+        from sklearn.preprocessing import StandardScaler
+        sc = StandardScaler()
+        self.X_train = sc.fit_transform(self.X_train)
+        self.X_test = sc.transform(self.X_test)
+        # PCA
+        from sklearn.decomposition import PCA
+        pca = PCA(n_components=50)
+        self.X_train = pca.fit_transform(self.X_train)
+        self.X_test = pca.transform(self.X_test)
 
     def logistic_regression(self, min_weight, max_weight, step_weight):
         for i in range(min_weight, max_weight, step_weight):
@@ -50,8 +69,9 @@ class Reg:
         plt.show()
 
 def main():
-    reg = Reg("X_PKM2_pca.csv", "y_PKM2.csv")
-    reg.logistic_regression(50, 150, 2)
+    reg = Reg("X_ERK2_pca.csv", "y_ERK2.csv")
+    reg.SMOTE()
+    reg.logistic_regression(1, 100, 1)
     reg.plot_roc_curve()
 
 if __name__ == "__main__":

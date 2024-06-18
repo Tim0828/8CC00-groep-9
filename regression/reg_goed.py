@@ -86,7 +86,7 @@ def main():
     y_PKM = y_PKM.astype(int)
     result_table['ERK2_inhibition'] = y_ERK
     result_table['PKM2_inhibition'] = y_PKM
-    result_table.to_csv("predictions.csv", index=False)
+    result_table.to_csv("untested_molecules.csv", index=False)
 
 
 if __name__ == "__main__":

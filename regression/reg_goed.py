@@ -1,13 +1,15 @@
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc, balanced_accuracy_score
+from sklearn.metrics import classification_report, confusion_matrix, balanced_accuracy_score
 import pandas as pd
+import seaborn as sns
 
 class Reg:
-    def __init__(self, X_file, y_file):
+    def __init__(self, X_file, y_file, label):
         self.X = pd.read_csv(X_file)
         self.y = pd.read_csv(y_file)
+        self.label = label
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(self.X, self.y, test_size=0.3, random_state=42)
         self.highest_BAcc_result = float('-inf')
         self.y_train = self.y_train.values.ravel()
@@ -29,25 +31,26 @@ class Reg:
                 self.best_y_prob = y_prob
                 self.best_model = logr_model
                 self.best_weight = i
-        print("Results of logistic regression for prediction of ERK_2 inhibition") 
+        print(f"Results of logistic regression for prediction of {self.label} inhibition")
         print("Balanced accuracy: {:.2f}%".format(self.highest_BAcc_result  * 100))
         print("Weight: ", self.best_weight)
         print("Classification Report:\n", classification_report(self.y_test, self.best_y_pred))
+        self.plot_confusion_matrix()
         print("Confusion Matrix:\n", confusion_matrix(self.y_test, self.best_y_pred))
 
-    def plot_roc_curve(self):
-        fpr, tpr, _ = roc_curve(self.y_test, self.best_y_prob)
-        roc_auc = auc(fpr, tpr)
+
+    def plot_confusion_matrix(self):
+        cm = confusion_matrix(self.y_test, self.best_y_pred)
         plt.figure(figsize=(8, 6))
-        plt.plot(fpr, tpr, color='darkorange', lw=2, label='ROC curve (area = %0.2f)' % roc_auc)
-        plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random')
-        # plt.xlim([0.0, 1.0])
-        # plt.ylim([0.0, 1.05])
-        plt.xlabel('False Positive Rate')
-        plt.ylabel('True Positive Rate')
-        plt.title('Receiver Operating Characteristic')
-        plt.legend(loc="lower right")
+        sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', cbar=False, 
+                    xticklabels=['Non-inhibitor', 'Inhibitor'], 
+                    yticklabels=['Non-inhibitor', 'Inhibitor'],
+                    annot_kws={"size": 16})
+        plt.xlabel('Predicted Label')
+        plt.ylabel('True Label')
+        plt.title(f'Confusion Matrix for {self.label}')
         plt.show()
+
     
     def predict(self, X):
         return self.best_model.predict(X)
@@ -71,12 +74,10 @@ def load_untested_data():
 
 def main():
     "Train model and predict both inhibitors"
-    reg_ERK = Reg("X_ERK2_pca.csv", "y_ERK2.csv")
-    reg_PKM = Reg("X_PKM2_pca.csv", "y_PKM2.csv")
+    reg_ERK = Reg("X_ERK2_pca.csv", "y_ERK2.csv", "ERK_2")
+    reg_PKM = Reg("X_PKM2_pca.csv", "y_PKM2.csv", "PKM_2")
     reg_ERK.logistic_regression(1, 150, 1)
     reg_PKM.logistic_regression(1, 150, 1)
-    reg_ERK.plot_roc_curve()
-    reg_PKM.plot_roc_curve()
     X_untest, result_table = load_untested_data()
     y_ERK = reg_ERK.predict(X_untest)
     y_PKM = reg_PKM.predict(X_untest)

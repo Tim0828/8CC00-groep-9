@@ -4,8 +4,11 @@ from sklearn.metrics import balanced_accuracy_score, confusion_matrix
 from sklearn.model_selection import train_test_split
 
 class Pipeline:
-    def __init__(self):
-        self.model = xgb.XGBClassifier()
+    def __init__(self, mod='classifier'):
+        if mod == 'classifier':
+            self.model = xgb.XGBClassifier(objective='binary:logistic')
+        else:
+            self.model = xgb.XGBRegressor(objective='binary:logistic')
 
     def load_data(self, X_file):
         if 'ERK' in X_file:
@@ -25,7 +28,7 @@ class Pipeline:
         # load the data
         X, y = self.load_data(X_filename)
         # split the data into training and testing sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, stratify=y) # stratify to keep the class distribution same in both training and testing sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y) # stratify to keep the class distribution same in both training and testing sets
 
         return X_train, X_test, y_train, y_test
 
@@ -48,10 +51,9 @@ class Pipeline:
         print(cm)
 
 # define pipeline
-pipeline = Pipeline()
-
+pipeline = Pipeline("classifier")
 # load data
-X_file = 'X_best_PKM2.csv'
+X_file = 'X_PKM2_pca.csv'
 X_train, X_test, y_train, y_test = pipeline.test_train(X_file)
 
 # train model
@@ -61,5 +63,3 @@ model = pipeline.train(X_train, y_train)
 score = pipeline.evaluate(X_test, y_test)
 print(f'Balanced accuracy: {score:.2f}')
 pipeline.conf_matrix(X_test, y_test)
-
-

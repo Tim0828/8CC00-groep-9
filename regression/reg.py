@@ -3,6 +3,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, roc_curve, auc, balanced_accuracy_score
 import pandas as pd
+import csv
 
 class Reg:
     def __init__(self, X_file, y_file):
@@ -75,17 +76,25 @@ def main():
     reg_PKM = Reg("X_PKM2_pca.csv", "y_PKM2.csv")
     reg_ERK.logistic_regression(1, 150, 1)
     reg_PKM.logistic_regression(1, 150, 1)
-    reg_ERK.plot_roc_curve()
-    reg_PKM.plot_roc_curve()
-    X_untest, result_table = load_untested_data()
+    # reg_ERK.plot_roc_curve()
+    # reg_PKM.plot_roc_curve()
+    X_untest, _ = load_untested_data()
     y_ERK = reg_ERK.predict(X_untest)
     y_PKM = reg_PKM.predict(X_untest)
     # conversion to integers
     y_ERK = y_ERK.astype(int)
     y_PKM = y_PKM.astype(int)
-    result_table['ERK2_inhibition'] = y_ERK
-    result_table['PKM2_inhibition'] = y_PKM
-    result_table.to_csv("predictions.csv", index=False)
+
+    # WHY DID THE FORMATTING HAD TO BE LIKE THIS
+    # conversion to string
+    y_ERK = y_ERK.astype(str)
+    y_PKM = y_PKM.astype(str)
+    # save results
+    
+    df = pd.read_csv('untested_molecules_format.csv')
+    df['PKM2_inhibition'] = y_PKM
+    df['ERK2_inhibition'] = y_ERK
+    df.to_csv('untested_molecules.csv', index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 if __name__ == "__main__":

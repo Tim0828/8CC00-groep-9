@@ -54,13 +54,14 @@ def train_random_forest(X_train, Y_train):
     best_model = grid_search.best_estimator_
     return best_model
 
-def evaluate_model(model, X_test, Y_test):
+def evaluate_model(model, X_test, Y_test,title):
     """Evaluates the random forest model based on the test data.
 
     Args:
         rf_model (sklearn random forest classifier): The to be tested random forest classifier.
         X_test (Pandas DataFrame): PCA test data.
         Y_test (Array): Inhibition test data.
+        title (str): title of the confusion matrix plot.
     """
     # prediction based on model:
     Y_predict = model.predict(X_test)
@@ -68,7 +69,7 @@ def evaluate_model(model, X_test, Y_test):
     # plotting confusion matrix:
     cm = confusion_matrix(Y_test,Y_predict)
     ConfusionMatrixDisplay(confusion_matrix=cm).plot()
-    plt.title("Standard Random Forest + SMOTE")
+    plt.title(title)
     plt.show(block = True)
     
     # Classfication report and balanced accuracy
@@ -87,5 +88,5 @@ X_train_ERK2, X_test_ERK2, Y_train_ERK2, Y_test_ERK2 = get_data(infile_X_ERK2, i
 rf_model_PKM2 = train_random_forest(X_train_PKM2,Y_train_PKM2)
 rf_model_ERK2 = train_random_forest(X_train_ERK2,Y_train_ERK2)
 
-evaluate_model(rf_model_PKM2, X_test_PKM2,Y_test_PKM2)
-evaluate_model(rf_model_ERK2, X_test_ERK2,Y_test_ERK2)
+evaluate_model(rf_model_PKM2, X_test_PKM2,Y_test_PKM2,"Random Forest (PKM2)")
+evaluate_model(rf_model_ERK2, X_test_ERK2,Y_test_ERK2,"Random Forest (ERK2)")

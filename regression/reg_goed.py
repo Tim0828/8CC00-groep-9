@@ -4,6 +4,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, confusion_matrix, balanced_accuracy_score
 import pandas as pd
 import seaborn as sns
+import csv
 
 class Reg:
     def __init__(self, X_file, y_file, label):
@@ -86,7 +87,7 @@ def main():
     y_PKM = y_PKM.astype(int)
     result_table['ERK2_inhibition'] = y_ERK
     result_table['PKM2_inhibition'] = y_PKM
-    result_table.to_csv("untested_molecules.csv", index=False)
+    result_table.to_csv("untested_molecules.csv", index=False, quoting=csv.QUOTE_NONNUMERIC)
 
 
 if __name__ == "__main__":

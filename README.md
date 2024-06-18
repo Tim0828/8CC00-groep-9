@@ -73,3 +73,15 @@ Iedereen: schrijf over eigen methode\\
 Tabel balanced accuracies\\
 
 
++++ Notes Meeting 18-6 +++
+Code -> verslag -> pitch
+Reg.py pca moet weg
+figuur in methode lijnen toevoegen.
+confusion matrix toevoegen om aan te tonen dat hij 1 goed schat + toevoegen in appendix
+Deep learning uitleg en waardes toevoegen
+toevoegen waardoor deep opeens niet zo goed was
+Isabeau voegt memes toe
+untested moeten worden ingevuld
+pitch afmaken
+
+Resultaten code in verslag + eigen stukje schrijven + verwijderen/houden toevoegen

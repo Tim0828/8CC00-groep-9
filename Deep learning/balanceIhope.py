@@ -7,7 +7,8 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 class BalancedSparseCategoricalAccuracy(keras.metrics.SparseCategoricalAccuracy):
     def __init__(self, name='balanced_sparse_categorical_accuracy', dtype=None):
@@ -36,7 +37,7 @@ class BalancedClassificationModel:
         self.model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=[BalancedSparseCategoricalAccuracy()])
 
     def train(self, X_train, y_train, epochs=20, batch_size=64, w=140):
-        self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, class_weight={0: 1., 1: w})
+        self.model.fit(X_train, y_train, epochs=epochs, batch_size=batch_size, class_weight={0: 1., 1: w}, verbose=0)
 
     def evaluate(self, X_test, y_test):
         # confusion matrix
@@ -78,7 +79,7 @@ X_train2, X_test2, y_PKM_train, y_PKM_test = train_test_split(X_PKM2_pca, y_PKM2
 input_size = X_train2.shape[1]
 balanced_model = BalancedClassificationModel(input_size=input_size)
 
-weights_PKM = list(range(80, 120, 2))
+weights_PKM = [102]
 # PKM
 baccs2 = []
 for weight in weights_PKM:
@@ -87,10 +88,10 @@ for weight in weights_PKM:
     baccs2.append({'weight': weight, 'bacc': bacc, 'cm': cm})
 
 # ERK
-weights_ERK = list(range(40, 80, 2))
+weights_ERK = [61]
 baccs = []
 for weight in weights_ERK:
-    balanced_model.train(X_train, y_ERK_train, epochs=15, w=weight)
+    balanced_model.train(X_train, y_ERK_train, epochs=20, w=weight)
     bacc, cm = balanced_model.evaluate(X_test, y_ERK_test)
     baccs.append({'weight': weight, 'bacc': bacc, 'cm': cm})
 
@@ -98,8 +99,11 @@ for weight in weights_ERK:
 best2 = max(baccs2, key=lambda x: x['bacc'])
 print(f"Best balanced accuracy PKM: {best2['bacc']} with weight {best2['weight']}")
 print(f"Confusion matrix: {best2['cm']}")
+sns.heatmap(best2['cm'], annot=True)
+
 
 # print highest bacc
 best = max(baccs, key=lambda x: x['bacc'])
 print(f"Best balanced accuracy ERK: {best['bacc']} with weight {best['weight']}")
 print(f"Confusion matrix: {best['cm']}")
+sns.heatmap(best['cm'], annot=True)
